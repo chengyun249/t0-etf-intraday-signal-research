@@ -1,0 +1,41 @@
+project:
+  name: minute-etf-intraday-research
+  frequency: 1min
+  sample_start: "2022-01-01"
+  sample_end: "2024-12-31"
+
+data:
+  raw_dir: data_t0_2022_2024/raw_1min
+  processed_dir: data_t0_2022_2024/processed
+  panel_file: data_t0_2022_2024/processed/t0_intraday_bar_panel.parquet
+
+universe:
+  candidate_file: data_t0_2022_2024/config/t0_etf_candidate_2022_2024_detail.csv
+  selected_file: data_t0_2022_2024/config/t0_etf_selected_2022_2024_detail.csv
+  focus_scope: commodity_focus
+
+backtest:
+  dev_start: "2022-01-01"
+  dev_end: "2023-12-31"
+  test_start: "2024-01-01"
+  test_end: "2024-12-31"
+  cost_bps:
+    - 0
+    - 1
+    - 2
+    - 3
+    - 5
+    - 10
+  main_cost_bp: 2
+  horizons_min:
+    - 15
+    - 30
+    - 60
+
+models:
+  direction_model: lightgbm
+  return_model: lightgbm
+  random_state: 42
+
+reports:
+  output_dir: reports

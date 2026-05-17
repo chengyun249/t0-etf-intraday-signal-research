@@ -1,0 +1,10 @@
+pandas
+numpy
+pyarrow
+scikit-learn
+lightgbm
+matplotlib
+tqdm
+pyyaml
+joblib
+tushare

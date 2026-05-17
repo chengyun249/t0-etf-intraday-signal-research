@@ -1,0 +1,2 @@
+﻿rows,etf_count,universe_count,trading_days,etf_day_count,duplicate_rows,bad_ohlc_rows,non_positive_price_rows,negative_vol_amount_rows,median_rows_per_etf_day,min_rows_per_etf_day,max_rows_per_etf_day,zero_amount_etf_days,incomplete_etf_days,start_time,end_time
+3971198,23,23,726,16478,0,0,0,0,241.0,241,241,2,0,2022-01-04 09:30:00,2024-12-31 15:00:00
