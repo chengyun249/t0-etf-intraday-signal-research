@@ -1,6 +1,6 @@
 {
-  "panel_file": "data_t0_2022_2024\\processed\\t0_intraday_bar_panel.parquet",
-  "out_dir": "data_t0_2022_2024\\backtest_combo_walk_forward_daily",
+  "panel_file": "C:\\Users\\21218\\Desktop\\22导24\\data_t0_2022_2024\\processed\\t0_intraday_bar_panel.parquet",
+  "out_dir": "C:\\Users\\21218\\Desktop\\22导24\\data_t0_2022_2024\\backtest_combo_wf_no_etf_filter",
   "scopes": [
     "commodity_focus"
   ],

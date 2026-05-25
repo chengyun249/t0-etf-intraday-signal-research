@@ -99,10 +99,10 @@ class ComboParams:
 
     take_profit: float = 0.0060
     hard_stop_loss: float = 0.0020
-    trailing_stop: float = 0.0030
+    trailing_stop: float = 0.0035
     vwap_stop_band: float = 0.0005
     or_high_stop_band: float = 0.0005
-    max_hold_bars: int = 30
+    max_hold_bars: int = 60
 
     max_positions: int = 3
     same_category_max_open: int = 1
@@ -137,6 +137,8 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--min-etf-profit-factor", type=float, default=0.8)
     p.add_argument("--fallback-all-if-no-etf-pass", action="store_true",
                    help="若历史窗口没有ETF通过筛选，则使用该candidate当天全部交易；默认不交易。")
+    p.add_argument("--disable-etf-filter", action="store_true",
+                   help="完全跳过ETF二次筛选，直接使用最优candidate的全部ETF当天交易。")
     p.add_argument("--update-frequency", type=str, default="daily", choices=["daily", "weekly", "monthly"],
                    help="参数/ETF筛选更新频率。daily最贴近每日更新，但最慢。")
     p.add_argument("--limit-trade-days", type=int, default=None, help="调试用，只跑前 N 个可交易日。")
@@ -197,7 +199,7 @@ def make_param_grid(grid_size: str) -> List[ComboParams]:
             "rv_z_max": [1.0, 1.5],
             "take_profit": [0.005, 0.008],
             "hard_stop_loss": [0.002, 0.003],
-            "max_hold_bars": [30],
+            "max_hold_bars": [60],
         }
     elif grid_size == "small":
         grid = {
@@ -642,6 +644,7 @@ def select_candidate_and_etfs(
     min_etf_avg_net_bp: float,
     min_etf_profit_factor: float,
     fallback_all_if_no_etf_pass: bool,
+    disable_etf_filter: bool = False,
 ) -> Dict:
     hist = all_trades[all_trades["trade_date"].isin(hist_dates)].copy()
     if hist.empty:
@@ -671,6 +674,17 @@ def select_candidate_and_etfs(
     best_row = score_df.sort_values(["score", "avg_net_bp", "profit_factor"], ascending=False).iloc[0]
     cid = int(best_row["candidate_id"])
     chosen_hist = hist[hist["candidate_id"] == cid].copy()
+
+    if disable_etf_filter:
+        meta = candidate_meta[candidate_meta["candidate_id"] == cid].iloc[0].to_dict()
+        return {
+            "selected": True,
+            "candidate_id": cid,
+            "selected_etfs": sorted(chosen_hist["ts_code"].dropna().unique().tolist()),
+            "candidate_score": best_row.to_dict(),
+            "candidate_meta": meta,
+            "reason": "disable_etf_filter",
+        }
 
     etf_rows = []
     for code, g in chosen_hist.groupby("ts_code"):
@@ -891,6 +905,7 @@ def main() -> int:
                 min_etf_avg_net_bp=args.min_etf_avg_net_bp,
                 min_etf_profit_factor=args.min_etf_profit_factor,
                 fallback_all_if_no_etf_pass=args.fallback_all_if_no_etf_pass,
+                disable_etf_filter=args.disable_etf_filter,
             )
             period_cache[period_key] = sel
 
