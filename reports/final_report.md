@@ -1,79 +1,300 @@
-# Final Report: Minute-Level ETF Intraday Quantitative Research
+# A 股 T+0 ETF 分钟级日内信号研究：最终报告
 
-## 1. Project Positioning
+## 1. 项目定位
 
-本项目基于 2022-2024 年 A 股 T+0 ETF 1 分钟行情数据，研究短周期收益预测、下行风险识别、日内动量规则和交易成本敏感性。
+本项目研究 2022—2024 年 A 股 T+0 ETF 的 1 分钟 OHLCV 行情数据，目标不是简单寻找一个回测收益最高的策略，而是系统检验：
 
-项目定位为分钟级日内量化研究框架，而非可直接实盘部署的低延迟高频交易系统。
+> 仅使用 1 分钟 bar 数据，A 股 T+0 ETF 的短周期收益是否具有稳定可交易性。
 
-## 2. Data
+围绕这一问题，项目依次完成了数据下载、分钟级面板构建、质量审计、规则信号、组合信号、机器学习预测、交易成本敏感性分析和 walk-forward 样本外验证。
 
-- Asset universe: China T+0 ETF candidate pool, with commodity-focused subset experiments
-- Frequency: 1-minute bar
-- Sample period: 2022-2024
-- Main panel: approximately 3.97 million rows x 69 feature columns
-- Raw data and full parquet panels are not included in this repository
+最终结论是：当前数据条件下，A 股 T+0 ETF 的分钟级正收益预测存在弱信号，但信号边际很薄，难以覆盖真实交易成本。项目更适合定位为 **分钟级 ETF 信号有效性检验与交易成本敏感性研究**，而不是可直接部署的实盘交易系统。
 
-## 3. Strategies and Models
+---
 
-### 3.1 Adaptive Intraday Momentum
+## 2. 数据与样本
 
-- Multi-horizon momentum signal
-- Volatility and volume filters
-- Adaptive exit logic
-- Cost sensitivity tested at 0bp / 5bp / 10bp / 20bp
+项目使用 Tushare Pro API 获取 A 股 T+0 ETF 1 分钟行情数据。
 
-### 3.2 Combined ORB / Noise / RV Signal
+```text
+样本区间：2022-01-01 至 2024-12-31
+数据频率：1 分钟 bar
+核心字段：open, high, low, close, volume, amount
+主要对象：具备 T+0 交易属性的 ETF
+```
 
-- Opening Range Breakout
-- Noise filtering
-- Realized volatility regime filter
-- Development/test split and walk-forward validation
+原始数据、分钟级面板、逐笔交易结果和中间输出文件不随仓库公开，原因包括数据体积、接口权限和数据再分发限制。仓库公开的是代码、方法文档、汇总报告和关键结果表。
 
-### 3.3 LightGBM Direction Classification
+---
 
-- Task: direction or downside-risk classification
-- Use case: identifying unfavorable trading environments
-- Main interpretation: downside-risk detection is more informative than pure positive-return prediction
+## 3. 研究流程
 
-### 3.4 LightGBM Return Regression
+项目整体流程如下：
 
-- Task: future return prediction at 15min / 30min / 60min horizons
-- Main interpretation: direct short-horizon positive-return prediction is weak and unstable after costs
+```text
+T+0 ETF 1 分钟原始行情
+        ↓
+数据清洗与质量审计
+        ↓
+分钟级研究面板构建
+        ↓
+规则信号策略测试
+        ↓
+组合信号策略测试
+        ↓
+机器学习收益/方向/下行风险预测
+        ↓
+交易成本敏感性分析
+        ↓
+walk-forward 样本外验证
+        ↓
+最终结论与局限性分析
+```
 
-## 4. Main Findings
+研究过程中遵循两个原则：
 
-1. Short-horizon ETF positive returns are difficult to predict robustly from 1-minute OHLCV data alone.
-2. Downside-risk detection is more informative than direct positive-return prediction.
-3. Transaction costs are decisive for minute-level long-only strategies.
-4. The T+0 ETF universe is relatively small, limiting cross-sectional diversity for machine learning models.
-5. Walk-forward validation helps reduce test-period tuning, but it does not fully solve signal decay.
+1. **不只展示最好结果**：无效策略、成本后失效结果和被删除模块均保留解释。
+2. **区分毛收益和可交易收益**：零成本下的正收益不等于真实可交易，必须经过成本敏感性检验。
 
-## 5. Project Decision
+---
 
-The legacy return-prediction experiments are retained as negative research evidence. The project is finally positioned as:
+## 4. 主要信号与模型
 
-> Minute-level ETF intraday signal research and transaction-cost sensitivity analysis.
+### 4.1 自适应日内动量
 
-This positioning is more honest and more useful than presenting the project as a mature high-frequency trading strategy.
+自适应日内动量策略用于建立最基础的规则基准。该策略尝试利用日内价格变化、波动率状态和流动性条件判断短周期趋势延续。
 
-## 6. Detailed Reports
+实验结果显示，简单动量类信号在 ETF 分钟级数据中表现较弱，尤其在加入交易成本后明显失效。
 
-- Panel audit: [panel_audit_report.md](panel_audit_report.md)
-- Adaptive momentum backtest: [adaptive_momentum_report.md](adaptive_momentum_report.md)
-- Commodity adaptive momentum: [adaptive_momentum_commodity_report.md](adaptive_momentum_commodity_report.md)
-- Combined strategy dev/test: [combo_dev_test_report.md](combo_dev_test_report.md)
-- Walk-forward backtest: [combo_walk_forward_report.md](combo_walk_forward_report.md)
-- Signal diagnostics: [signal_diagnostics_report.md](signal_diagnostics_report.md)
-- ML direction model h15: [ml_direction_h15_report.md](ml_direction_h15_report.md)
-- ML return model h15: [ml_return_h15_report.md](ml_return_h15_report.md)
-- ML return model h30: [ml_return_h30_report.md](ml_return_h30_report.md)
-- ML return model h60: [ml_return_h60_report.md](ml_return_h60_report.md)
+### 4.2 组合信号策略
 
-## 7. Key Figures
+组合信号策略是本项目中最重要的规则框架。核心模块包括：
 
-- Cost sensitivity: [fig_cost_sensitivity.png](figures/fig_cost_sensitivity.png)
-- Combined signal dev/test cost stress: [fig_combo_dev_test_cost_sensitivity.png](figures/fig_combo_dev_test_cost_sensitivity.png)
-- Signal forward returns: [fig_signal_forward_returns.png](figures/fig_signal_forward_returns.png)
-- ML prediction diagnostics: [fig_ml_prediction_diagnostics.png](figures/fig_ml_prediction_diagnostics.png)
-- ML feature importance: [fig_ml_feature_importance.png](figures/fig_ml_feature_importance.png)
+- **ORB（Opening Range Breakout）**：价格突破开盘区间上沿；
+- **Relative Volume**：开盘成交额相对历史同区间放大；
+- **Noise Boundary**：价格突破历史同一日内位置的正常噪声范围；
+- **VWAP Confirmation**：价格站在日内成交量加权平均价上方；
+- **Category Breadth**：同类 ETF 出现同步上涨；
+- **Relative Value Filter**：过滤相对同类过热的标的；
+- **Expected Edge Filter**：预期收益空间需要覆盖交易成本；
+- **Dynamic Exit**：止盈、止损、移动止损、结构止损、最大持有时间、收盘前强制平仓。
+
+该框架试图解决简单动量信号噪声过高的问题，用多层过滤提高信号质量。
+
+### 4.3 机器学习模型
+
+项目使用 LightGBM 构建三类模型：
+
+```text
+方向分类模型：预测未来收益是否为正
+收益回归模型：预测未来 15/30/60 分钟收益率
+下行风险分类模型：识别未来较大负收益事件
+```
+
+实验结果显示，直接预测正收益较难；相比之下，下行风险分类模型表现更稳定，说明分钟级 OHLCV 特征更适合识别“不适合交易的环境”，而不是直接识别“应该买入的机会”。
+
+---
+
+## 5. 固定 dev/test 组合策略结果
+
+固定组合策略使用 2022—2023 年作为开发期，2024 年作为测试期。开发期在多个 scope 中选择主版本，最终选择 `commodity_focus`。
+
+代表性结果如下：
+
+| 期间 | 成本 | 交易数 | Final NAV | Sharpe | 胜率 |
+|---|---:|---:|---:|---:|---:|
+| 开发期 2022—2023 | 0bp | 178 | 1.0075 | 1.15 | 41.0% |
+| 开发期 2022—2023 | 2bp | 178 | 0.9933 | -1.06 | 33.7% |
+| 测试期 2024 | 0bp | 117 | 1.0073 | 1.67 | 48.7% |
+| 测试期 2024 | 2bp | 117 | 0.9979 | -0.51 | 41.0% |
+
+固定 dev/test 结果说明：组合过滤后，信号质量明显优于简单动量，但策略边际仍然很薄。0bp 成本下可以看到弱正收益，2bp 单边成本后收益基本被吞噬。
+
+---
+
+## 6. Walk-forward 样本外验证
+
+### 6.1 方法设计
+
+固定 dev/test 只检验一次样本外表现。为了更接近真实部署，项目进一步实现了 daily walk-forward 验证。
+
+walk-forward 的核心逻辑是：
+
+```text
+每个交易日前：
+    只使用该日前最多 120 个交易日的历史窗口；
+    在 48 组候选参数 candidate 中选择表现较好的组合；
+    然后将该 candidate 应用于当天交易。
+```
+
+当前主线配置如下：
+
+```text
+scope：commodity_focus
+grid_size：mini
+candidate_count：48
+walk_forward_trade_dates：666
+train_lookback_days：120
+min_train_days：60
+update_frequency：daily
+main_cost_bp：2.0
+ETF 二次筛选：禁用
+```
+
+### 6.2 为什么删除 ETF 二次筛选
+
+早期 walk-forward 版本曾在选出 candidate 后，再基于单 ETF 历史交易表现进行二次筛选，筛选条件包括历史交易次数、平均净收益和 profit factor。
+
+该设计的初衷是过滤近期不适配的 ETF。但后续拆解发现，这一层在样本外没有稳定预测力，反而保留了较弱交易、过滤了较强交易。因此最终主线版本禁用 ETF 二次筛选，只保留参数 candidate 的 rolling selection。
+
+这一步的含义是：项目没有机械堆叠过滤器，而是根据样本外结果删除无效模块。
+
+### 6.3 最新 walk-forward 主线结果
+
+当前主线版本为：
+
+```text
+commodity_focus + daily walk-forward 参数选择 + 禁用 ETF 二次筛选
+```
+
+成本敏感性结果如下：
+
+| 单边成本 | 交易数 | Final NAV | Sharpe | 最大回撤 | 胜率 | 平均单笔毛收益 | Profit Factor |
+|---:|---:|---:|---:|---:|---:|---:|---:|
+| 0bp | 266 | 1.00445 | 0.579 | -0.357% | 40.98% | 0.836bp | 1.162 |
+| 1bp | 266 | 0.99382 | -0.831 | -0.830% | 39.10% | 0.836bp | 0.816 |
+| 2bp | 266 | 0.98330 | -2.251 | -1.770% | 33.46% | 0.836bp | 0.585 |
+| 5bp | 266 | 0.95240 | -5.530 | -4.760% | 22.18% | 0.836bp | 0.236 |
+| 10bp | 266 | 0.90304 | -7.471 | -9.696% | 9.77% | 0.836bp | 0.061 |
+
+该结果说明：
+
+1. 禁用 ETF 二次筛选后，组合信号在 `commodity_focus` 池内恢复为弱正毛收益；
+2. 0bp 成本下 final NAV 为 1.00445，平均单笔毛收益约 0.84bp；
+3. 1bp 单边成本后策略转负，2bp 单边成本后明显转负；
+4. 因此，当前信号有弱边际，但不足以覆盖真实交易成本。
+
+### 6.4 ETF 归因
+
+| ETF | 交易数 | 平均毛收益 | 胜率 | Profit Factor |
+|---|---:|---:|---:|---:|
+| 有色ETF | 7 | 5.42bp | 57.14% | 1.70 |
+| 黄金ETF易方达 | 70 | 1.22bp | 41.43% | 1.25 |
+| 黄金ETF博时 | 40 | 0.85bp | 35.00% | 1.19 |
+| 黄金ETF华安 | 88 | 0.82bp | 43.18% | 1.18 |
+| 黄金ETF国泰 | 42 | 0.81bp | 42.86% | 1.15 |
+| 豆粕ETF华夏 | 13 | -0.24bp | 38.46% | 0.97 |
+| 能源化工ETF | 6 | -6.27bp | 16.67% | 0.45 |
+
+归因显示，核心黄金 ETF 在零成本下有弱正表现，能源化工 ETF 明显拖累。但由于 ETF 二次筛选此前样本外失效，最终主线没有再基于单 ETF 历史收益做动态筛选。
+
+### 6.5 退出原因归因
+
+| 退出原因 | 交易数 | 平均毛收益 | 胜率 | Profit Factor |
+|---|---:|---:|---:|---:|
+| take_profit | 5 | 50.00bp | 100.00% | inf |
+| max_hold | 144 | 5.48bp | 58.33% | 3.78 |
+| force_flat | 23 | 5.28bp | 65.22% | 3.45 |
+| stop | 94 | -9.98bp | 5.32% | 0.09 |
+
+退出归因显示，正向交易主要来自 `max_hold`、`force_flat` 和少量 `take_profit`；主要拖累来自 `stop`。这说明策略并非完全没有方向性，但错误交易亏损较厚，且正向交易平均收益不足以抵御成本。
+
+---
+
+## 7. 机器学习结果总结
+
+机器学习实验的核心结论是：
+
+1. 直接预测未来收益率较难，收益回归预测相关性较低；
+2. 方向分类有一定识别能力，但不足以直接构成稳定开仓策略；
+3. 下行风险分类表现相对更稳定，更适合作为风险过滤器。
+
+代表性结果：
+
+```text
+收益回归 pred_ret_corr：约 0.019
+方向分类 AUC：约 0.594
+下行风险分类 AUC：约 0.616
+Average Precision：约 0.400
+```
+
+这说明分钟级 OHLCV 数据包含一定风险状态信息，但对直接预测短周期正收益的支持不足。
+
+---
+
+## 8. 为什么策略不能直接实盘
+
+### 8.1 毛收益边际太薄
+
+最新 walk-forward 版本 0bp 成本下平均单笔毛收益约 0.84bp。这个水平低于 1—2bp 单边交易成本所对应的 round-trip 成本，因此无法形成稳定净收益。
+
+### 8.2 数据粒度不足
+
+1 分钟 bar 缺少盘口、逐笔成交、主动买卖方向、买卖价差、订单簿深度等信息。对于分钟级交易，执行成本和微观结构信息往往比普通 OHLCV 特征更关键。
+
+### 8.3 ETF 横截面较小
+
+A 股 T+0 ETF 数量有限，商品 ETF 子集更小。相比股票池，ETF 横截面数量少，信号排序空间有限，机器学习模型可学习的稳定差异不足。
+
+### 8.4 Long-only 结构限制收益来源
+
+多数实验采用 long-only 逻辑。模型即使能识别下行风险，也主要只能用于不买或过滤，而不能通过做空获利。
+
+### 8.5 参数和过滤器不能无限堆叠
+
+早期 ETF 二次筛选的失败说明，过滤器不是越多越好。没有样本外支撑的过滤层反而可能破坏交易结构。
+
+---
+
+## 9. 项目价值
+
+### 9.1 完整研究闭环
+
+项目覆盖数据、特征、规则、机器学习、成本、walk-forward 和结果解释，形成了完整研究闭环。
+
+### 9.2 真实展示失败与迭代
+
+项目不是只展示成功结果，而是展示了多个方向的证否过程：
+
+- 简单动量策略失败；
+- 固定组合策略在零成本下有弱边际，但成本后失效；
+- ETF 二次筛选在样本外失效，因此从主线删除；
+- 机器学习直接预测正收益较弱；
+- 下行风险识别相对更稳定。
+
+这种迭代过程比单一收益曲线更能体现研究价值。
+
+### 9.3 明确后续方向
+
+后续若继续推进，应优先考虑：
+
+- tick 级成交数据；
+- 盘口和订单簿数据；
+- 更真实的滑点和冲击成本模型；
+- 更严格的流动性过滤；
+- 用下行风险模型做风控过滤，而非直接追求正收益预测；
+- 降低交易频率或改为更长周期持有；
+- 探索非 long-only 的风险表达方式。
+
+---
+
+## 10. 最终结论
+
+本项目最终结论如下：
+
+> A 股 T+0 ETF 的 1 分钟 OHLCV 数据中存在一定弱信号，组合过滤和 walk-forward 后可以在零成本下形成微弱正毛收益；但该边际非常薄，无法覆盖 1—2bp 单边交易成本。当前版本不适合作为实盘策略直接部署，更适合作为分钟级 ETF 信号研究、交易成本敏感性分析和样本外验证框架。
+
+其中，最新 walk-forward 主线版本的关键信息是：
+
+```text
+scope：commodity_focus
+candidate_count：48
+rolling window：120 个交易日
+ETF 二次筛选：禁用
+0bp 交易数：266
+0bp final_nav：1.00445
+0bp 平均单笔毛收益：约 0.84bp
+2bp final_nav：0.98330
+```
+
+因此，项目的核心价值不是“发现了可实盘套利策略”，而是完整验证了在当前数据粒度、成本假设和 long-only 约束下，A 股 T+0 ETF 分钟级日内突破策略的可行边界。
