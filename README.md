@@ -4,7 +4,16 @@
 
 当前定位：研究原型，不是可实盘策略，不构成投资建议。
 
-完整中文介绍见 [项目介绍](docs/project_overview.md)。
+## 项目文档导航
+
+- [完整中文项目介绍](docs/project_overview.md)：背景、范围、方法、结果、验收状态和后续路线；
+- [v2研究方法](docs/methodology_v2.md)：信息时点、动态标的池和时间切分；
+- [数据处理流程](docs/data_pipeline.md)：下载、面板构建和数据质量要求；
+- [成本与成交假设](docs/cost_and_execution.md)：成本定义和保守OHLC成交模型；
+- [策略验收审查](docs/strategy_acceptance_review.md)：当前证据与部署门槛；
+- [失败和负面结果](docs/negative_results.md)：未通过检验的研究方向；
+- [版本变更记录](CHANGELOG.md)：v2重构内容；
+- [旧报告格式说明](reports_sample/README.md)：v2前样例报告的使用边界。
 
 ## 研究内容
 

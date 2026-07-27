@@ -1,5 +1,7 @@
 # A股T+0 ETF分钟级信号研究：项目介绍
 
+[← 返回项目首页](../README.md) · [研究方法](methodology_v2.md) · [策略验收](strategy_acceptance_review.md) · [版本记录](../CHANGELOG.md)
+
 ## 一、项目概述
 
 本项目围绕A股市场中支持T+0交易的ETF，研究1分钟OHLCV数据中是否存在能够覆盖交易摩擦、并在严格样本外验证下保持稳定的日内信号。
