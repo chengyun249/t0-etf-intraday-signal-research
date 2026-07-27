@@ -1,62 +1,34 @@
+# Data
+data_t0/
+data/raw/
+data/processed/*.parquet
+data/processed/*.csv
+data/logs/
+
+# Results
+results/
+archive/
+
+# Env / secrets
+.env
+config.yaml
+*.token
+
 # Python
 __pycache__/
-*.py[cod]
+.pytest_cache/
+.ruff_cache/
 *.pyc
 *.pyo
 .ipynb_checkpoints/
-*.egg-info/
-dist/
-build/
-
-# Environment
-.venv/
-venv/
-env/
-.env
 
 # IDE
 .vscode/
 .idea/
-.claude/
 
 # OS
 .DS_Store
 Thumbs.db
-desktop.ini
 
-# Raw and processed data (large files)
-data_t0_2022_2024/
-data/raw/
-data/processed/
-data/interim/
-*.parquet
-*.feather
-*.h5
-*.pkl
-*.joblib
-
-# Large model outputs
-models/
-model_outputs/
-data/model_outputs/
-data/model_outputs_v1/
-
-# Logs
-*.log
-logs/
-
-# Temporary files
-tmp/
-temp/
-*.tmp
-
-# Zip archives (data not for upload)
-*.zip
-
-# Jupyter
-notebooks/.ipynb_checkpoints/
-
-# Secrets (never upload tokens)
-*_token*
-*_secret*
-*.env
+# Claude
+.claude/

@@ -1,0 +1,31 @@
+project:
+  name: "china-t0-etf-intraday-signals"
+  root_dir: "."
+
+data:
+  start_date: "2022-01-01"
+  end_date: "2024-12-31"
+  tushare_token_env: "TUSHARE_TOKEN"
+  base_url: "http://tsy.xiaodefa.cn"
+
+paths:
+  raw_dir: "data_t0/raw_1min"
+  processed_dir: "data_t0/processed"
+  logs_dir: "data_t0/logs"
+  results_dir: "results"
+
+download:
+  freq: "1min"
+  sleep: 0.3
+  max_retry: 3
+
+execution:
+  one_way_cost_bp: 2.0
+  cost_grid_bp: [0, 1, 2, 3, 5, 10]
+  stop_slippage_bp: 1.0
+  price_data: "one_minute_ohlc"
+
+dynamic_universe:
+  lookback_days: 20
+  min_history_days: 20
+  min_median_daily_amount: 0.0
