@@ -4,6 +4,8 @@
 
 当前定位：研究原型，不是可实盘策略，不构成投资建议。
 
+完整中文介绍见 [项目介绍](docs/project_overview.md)。
+
 ## 研究内容
 
 - 开盘区间突破（ORB）、噪声边界、VWAP、类别广度和相对价值；
@@ -109,4 +111,4 @@ archive/               本地旧原型，Git忽略
 - T+0资格、跨境额度、申赎状态和临时停牌仍需更细的point-in-time数据。
 - 相邻分钟标签重叠会降低有效样本量；按日分块避免跨折泄漏，但不能把每分钟当成独立观测。
 
-更多说明见 [v2方法](docs/methodology_v2.md)、[数据流程](docs/data_pipeline.md)、[成本与成交](docs/cost_and_execution.md)、[策略验收](docs/strategy_acceptance_review.md) 和 [负面结果](docs/negative_results.md)。
+更多说明见 [项目介绍](docs/project_overview.md)、[v2方法](docs/methodology_v2.md)、[数据流程](docs/data_pipeline.md)、[成本与成交](docs/cost_and_execution.md)、[策略验收](docs/strategy_acceptance_review.md) 和 [负面结果](docs/negative_results.md)。
